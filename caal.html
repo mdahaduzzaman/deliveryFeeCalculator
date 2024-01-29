@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Delivery Fee Calculator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body>
+    <div class="border-2 border-black rounded-md w-[80%] m-5 ">
+        <h1 class="border-b-2 border-black p-2 text-3xl font-semibold">Delivery Fee Calculator</h1>
+
+        <div class="m-10 text-xl font-medium w-[60%]">
+            <form id="deliveryForm" onsubmit="calculateDeliveryFee(event)">
+                <div class="mb-2 grid grid-cols-2 relative">
+                    <label for="cartValue">Cart Value:</label>
+                    <input type="number" id="cartValue" name="cartValue" class="border border-black rounded px-2 py-1 focus:bg-slate-200" step="0.01"
+                        required />
+                    <span class="absolute right-[-40px]">€</span>
+                </div>
+
+                <div class="mb-2 grid grid-cols-2 relative">
+                    <label for="deliveryDistance">Delivery Distance:</label>
+                    <input type="number" id="deliveryDistance" name="deliveryDistance" class="border border-black rounded px-2 py-1 focus:bg-slate-200" required />
+                    <span class="absolute right-[-40px]">m</span>
+                </div>
+
+                <div class="mb-2 grid grid-cols-2">
+                    <label for="numItems">Number of Items:</label>
+                    <input type="number" id="numItems" name="numItems" class="border border-black rounded px-2 py-1 focus:bg-slate-200" required />
+                </div>
+
+                <div class="mb-2 grid grid-cols-2">
+                    <label for="deliveryTime">Delivery Time:</label>
+                    <input type="datetime-local" id="deliveryTime" name="deliveryTime" class="border border-black rounded px-2 py-1" required />
+                </div>
+
+                <button type="submit" class="bg-slate-200 px-10 py-1 hover:bg-slate-300 shadow-sm border rounded" onclick="calculateDeliveryFee(e)">
+                    Calculate Fee
+                </button>
+            </form>
+            <p class="mt-3">Delivery Fee: <span id="deliveryFee"></span> €</p>
+        </div>
+
+        <div class="my-10 border-t-2 p-2 border-black "></div>
+    </div>
+
+
+    <script>
+        function calculateDeliveryFee(e) {
+            e.preventDefault();
+            const cartValue = parseFloat(
+                document.getElementById("cartValue").value
+            );
+            const deliveryDistance = parseInt(
+                document.getElementById("deliveryDistance").value
+            );
+            const numItems = parseInt(document.getElementById("numItems").value);
+            const deliveryTime = new Date(
+                document.getElementById("deliveryTime").value
+            );
+
+            console.log(cartValue, deliveryDistance, numItems, deliveryTime);
+            let baseFee = 2;
+
+            let cartSurcharge = 0;
+            if (cartValue < 10) {
+                cartSurcharge += 10 - cartValue;
+            }
+
+            let distanceFee = 0;
+            if (deliveryDistance <= 1000) {
+                distanceFee += 2;
+            } else {
+                distanceFee += 2 + Math.ceil((deliveryDistance - 1000) / 500);
+            }
+
+            let itemSurcharge = 0;
+            if (numItems >= 5) {
+                itemSurcharge += (numItems - 4) * 0.5;
+                if (numItems > 12) {
+                    itemSurcharge += 1.2;
+                }
+            }
+
+            let deliveryFee = cartSurcharge + distanceFee + itemSurcharge;
+
+            if (cartValue >= 200) {
+                deliveryFee = 0;
+            }
+
+            const dayOfWeek = deliveryTime.getDay();
+            const hourOfDay = deliveryTime.getHours();
+
+            if (dayOfWeek === 5 && hourOfDay >= 15 && hourOfDay <= 19) {
+                deliveryFee *= 1.2;
+            }
+
+            if (deliveryFee > 15) {
+                deliveryFee = 15;
+            }
+
+            document.getElementById("deliveryFee").textContent =
+                deliveryFee.toFixed(2);
+        }
+    </script>
+</body>
+
+</html>
